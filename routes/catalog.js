@@ -40,3 +40,6 @@ router.get('/books', bookController.book_list);
 // TODO!
 //  Author Routes
 //  etc
+
+
+module.exports = router;
