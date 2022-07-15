@@ -7,7 +7,7 @@ const URI = process.env.MONGODB;
 mongoose.connect(URI, {useNewUrlParser: true, useUnifiedTopology: true});
 
 // Getting the connection
-const db = moongoose.connection;
+const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 
