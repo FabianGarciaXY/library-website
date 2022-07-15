@@ -6,7 +6,7 @@ exports.authorList = (req, res) => {
 };
 
 // Render Information from a specific author
-exports.author = (req, res) => {
+exports.authorDetail = (req, res) => {
     res.send('NOT IMPLEMENTED: Author detail: ' + req.params.id);
 };
 
@@ -20,9 +20,15 @@ exports.authorCreatePost = (req, res) => {
     res.send('NOT IMPLEMENTED: Author create POST');
 };
 
+
+// Display Author delete form on GET.
+exports.authorDeleteGet = (req, res) => {
+    res.send('NOT IMPLEMENTED: Author delete GET')
+}
+
 // Display Author delete form on GET.
 exports.authorDeletePost = (req, res) => {
-    res.send('NOT IMPLEMENTED: Author delete GET');
+    res.send('NOT IMPLEMENTED: Author delete POST');
 };
 
 // Display Author update form on GET.
