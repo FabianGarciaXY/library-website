@@ -8,8 +8,8 @@ const genreController = require('./../controllers/genreController');
 const bookInstanceController = require('./../controllers/bookinstanceController');
 const {authorDeletePost, author} = require("../controllers/authorController");
 
-// === BOOK ROUTES === //
 
+// === BOOK ROUTES === //
 // GET Catalog Home Page
 router.get('/', bookController.index);
 
@@ -38,10 +38,7 @@ router.get('/book/:id', bookController.book_detail);
 router.get('/books', bookController.book_list);
 
 
-// TODO!
-//  Author Routes
-//  etc
-
+// === AUTHOR ROUTES === //
 // GET request for creating Author. This must come before route for id (i.e. display author)
 router.get('/author/create', authorController.authorCreateGet);
 
@@ -52,8 +49,19 @@ router.post('/author/create', authorController.authorCreatePost);
 router.get('/author/:id/delete', authorController.authorDeleteGet);
 
 // POST request to delete Author.
-router.post('/author/:id/delete', authorController.authorDeleteGet);
+router.post('/author/:id/delete', authorController.authorDeletePost);
 
+// GET request to update Author.
+router.get('/author/:id/update', authorController.authorUpdateGet);
+
+// POST request to update Author.
+router.post('/author/:id/update', authorController.authorUpdatePost);
+
+// GET request for one Author.
+router.get('/author/:id', authorController.authorDetail);
+
+// GET request for list of all Authors.
+router.get('/authors', authorController.authorList);
 
 
 // Export Router
