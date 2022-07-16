@@ -39,7 +39,7 @@ exports.book_list = function(req, res, next) {
             // On Error
             if (err) return next(err);
             // On Successful Response
-            res.render('book_list', {title: 'Book List', data: list_books})
+            res.render('book_list', {title: 'Book List', list_books: list_books})
         });
 };
 
