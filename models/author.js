@@ -49,7 +49,7 @@ AuthorSchema
 AuthorSchema
     .virtual('date_of_dead_formatted')
     .get( function() {
-        return this.date_of_death ? DateTime.fromJSDate(this.date_of_death).toLocaleString(DateTime.DATE_MED) : 'Now';
+        return this.date_of_death ? DateTime.fromJSDate(this.date_of_death).toLocaleString(DateTime.DATE_MED) : '';
     })
 
 // Virtual for author's URL
