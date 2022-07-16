@@ -1,4 +1,6 @@
 const Author = require('../models/author');
+const Book = require('../models/book')
+const async = require('async');
 
 // Render All list of authors
 exports.authorList = (req, res, next) => {
@@ -11,8 +13,29 @@ exports.authorList = (req, res, next) => {
 };
 
 // Render Information from a specific author
-exports.authorDetail = (req, res) => {
-    res.send('NOT IMPLEMENTED: Author detail: ' + req.params.id);
+exports.authorDetail = (req, res, next) => {
+    async.parallel({
+        author: (callback) => {
+            Author.findById(req.params.id)
+                .exec(callback)
+        },
+        authorsBooks: (callback) => {
+            Book.find({ 'author': req.params.id },'title summary')
+                .exec(callback)
+        },
+    }, function(err, results) {
+        if (err) { return next(err); } // Error in API usage.
+        if (results.author == null) { // No results.
+            let err = new Error('Author not found');
+            err.status = 404;
+            return next(err);
+        }
+        // On success
+        res.render('author_detail', {
+            title: 'Author Detail',
+            author: results.author,
+            author_books: results.authorsBooks } );
+    });
 };
 
 // Display Author create on GET
