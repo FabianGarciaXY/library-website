@@ -86,7 +86,7 @@ router.post('/genre/:id/update', genreController.genre_update_post);
 router.get('/genre/:id', genreController.genre_detail);
 
 // GET request for list of all Genre.
-router.get('/genres', genreController.genre_list);
+router.get('/genre', genreController.genre_list);
 
 
 /// BOOKINSTANCE ROUTES ///

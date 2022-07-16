@@ -11,7 +11,7 @@ const Genre = new Schema({
 Genre
     .virtual('url')
     .get( function() {
-        return '/catalog/genres/' + this._id;
+        return '/catalog/genre/' + this._id;
 });
 
 
