@@ -1,6 +1,7 @@
 const Genre = require('../models/genre');
 const Book = require('../models/book');
 const async = require('async');
+const { body, validationResult } = require('express-validator');
 
 // Display list of all Genre.
 exports.genre_list = function(req, res, next) {
@@ -38,13 +39,41 @@ exports.genre_detail = function(req, res, next) {
 
 // Display Genre create form on GET.
 exports.genre_create_get = function(req, res) {
-    res.send('NOT IMPLEMENTED: Genre create GET');
+    res.render('genre_form', {title: 'Create Genre'});
 };
 
 // Handle Genre create on POST.
-exports.genre_create_post = function(req, res) {
-    res.send('NOT IMPLEMENTED: Genre create POST');
-};
+exports.genre_create_post = [
+    // Validate and Sanitize the name field
+    body('name', 'Genre name required').trim().isLength({min: 1}). escape(),
+    (req, res, next) => {
+        const errors = validationResult(req);
+        // Create a genre object with escaped and trimmed data.
+        const genre = new Genre({ name: req.body.name });
+        // If errors exists return the errors in the form
+        if (!errors.isEmpty()) {
+            res.render('genre_form', {title: 'Create Genre', genre: genre, errors: errors.array()});
+            return;
+        }
+        else {
+            // Data is valid
+            // Validate if the genre with the same name already exists.
+            Genre.findOne({'name': { $regex: req.body.name, $options: 'i'}})
+                .exec( (err, genre_found) => {
+                    if (err) return next(err);
+                    if (genre_found) {
+                        res.redirect(genre_found.url);
+                    } else {
+                        // genre is saved and then redirects to the genre detail page
+                        genre.save( (err) => {
+                            if (err) return next(err);
+                            res.redirect(genre.url);
+                      });
+                    }
+                })
+        }
+    }
+];
 
 // Display Genre delete form on GET.
 exports.genre_delete_get = function(req, res) {
