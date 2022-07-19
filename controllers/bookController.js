@@ -174,8 +174,39 @@ exports.book_delete_post = function(req, res) {
 };
 
 // Display book update form on GET.
-exports.book_update_get = function(req, res) {
-    res.send('NOT IMPLEMENTED: Book update GET');
+exports.book_update_get = function(req, res, next) {
+    // Get book, authors and genres form
+    async.parallel({
+        book(callback) {
+            Book.findById(req.params.id).populate('author').populate('genre').exec(callback);
+        },
+        authors(callback) {
+            Author.find(callback);
+        },
+        genres(callback) {
+            Genre.find(callback);
+        }
+    }, (err, results) => {
+        if (err) return next(err);
+        if (results.book == null) { // No results
+            let err = new Error('Book not found');
+            err.status = 404;
+            return next(err);
+        }
+        // On succes, Mark our selected genres as checked
+        for (let all_genre_iter = 0; all_genre_iter < results.genres.length; all_genre_iter++) {
+            for (let book_genre_iter = 0; book_genre_iter < results.book.genre.length; book_genre_iter++) {
+                if(results.genres[all_genre_iter]._id.toString() === results.book.genre[book_genre_iter]._id.toString()) {
+                    results.genres[all_genre_iter].checked = 'true';
+                }
+            }
+        }
+        res.render('book_form',  {title: 'Update Book',
+            authors: results.authors,
+            genres: results.genres,
+            book: results.book_genre_iter
+        });
+    });
 };
 
 // Handle book update on POST.
