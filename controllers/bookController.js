@@ -204,12 +204,75 @@ exports.book_update_get = function(req, res, next) {
         res.render('book_form',  {title: 'Update Book',
             authors: results.authors,
             genres: results.genres,
-            book: results.book_genre_iter
+            book: results.book
         });
     });
 };
 
 // Handle book update on POST.
-exports.book_update_post = function(req, res) {
-    res.send('NOT IMPLEMENTED: Book update POST');
-};
+exports.book_update_post = [
+    (req, res, next) => {
+        if (!(Array.isArray(req.body.genre))) {
+            if(typeof req.body.genre === 'undefined') {
+                req.body.genre = [];
+            }
+            else {
+                req.body.genre = [req.body.genre];
+            }
+        }
+        next();
+    },
+    // Validate and sanitize fields.
+    body('title', 'Title must not be empty.').trim().isLength({min: 1}).escape(),
+    body('author', 'Author must not be empty.').trim().isLength({min: 1}).escape(),
+    body('summary', 'Summary must not be empty.').trim().isLength({ min: 1 }).escape(),
+    body('isbn', 'ISBN must not be empty').trim().isLength({ min: 1 }).escape(),
+    body('genre.*').escape(),
+    // Process request after validation and sanitization.
+    (req, res, next) => {
+        // Extract errors if there are
+        const errors = validationResult(req) 
+        // Create a new book
+        const book = new Book({
+            title: req.body.title,
+            author: req.body.author,
+            summary: req.body.summary,
+            isbn: req.body.isbn,
+            genre: (typeof req.body.genre==='undefined') ? [] : req.body.genre,
+            _id: req.params._id
+        });
+
+        if (!errors.isEmpty()) { // If there are some errors
+            async.parallel({
+                authors(callback) {
+                    Author.find(callback);
+                },
+                genres(callback) {
+                    Genre.find(callback);
+                },
+            }, (err, results) => {
+                if (err) return next(err);
+                
+                // Mark our selected genres as checked.
+                for(let i = 0; i<results.genres.length; i++) {
+                    if(book.genre.indexOf(results.genres[i]._id) > -1) {
+                        results.genre[i].checked = 'true';
+                    }
+                }
+                res.render('book_form', {title: 'Update Book',
+                    authors: results.authors,
+                    genres: results.genres,
+                    book: results.book,
+                    errors: errors.array()
+                });
+            });
+            return
+        }
+        else {
+            Book.findByIdAndUpdate(req.params.id, book, {}, (err, updatedBook) => {
+                if (err) return next(err);
+                res.redirect(updatedBook.url);
+            });
+        }
+    }
+];
