@@ -82,13 +82,57 @@ exports.authorCreatePost = [
 
 
 // Display Author delete form on GET.
-exports.authorDeleteGet = (req, res) => {
-    res.send('NOT IMPLEMENTED: Author delete GET')
+exports.authorDeleteGet = (req, res, next) => {
+    // Get a specific Author and its books
+    async.parallel({
+        author(callback) {
+            Author.findById(req.params.id).exec(callback);
+        },
+        author_books(callback) {
+            Book.find({ 'author': req.params.id }).exec(callback);
+        }
+    }, (err, results) => {
+        if (err) return next(err);
+        if (results.author == null) { // No results
+            res.redirect('catalog/authors');
+        }
+        // On success
+        res.render('author_delete', { title: 'Delete Author',
+                author: results.author,
+                author_books: results.author_books
+        });
+    });
 }
 
 // Display Author delete form on GET.
-exports.authorDeletePost = (req, res) => {
-    res.send('NOT IMPLEMENTED: Author delete POST');
+exports.authorDeletePost = (req, res, next) => {
+    async.parallel({
+        author(callback) {
+            Author.findById(req.body.id).exec(callback);
+        },
+        author_books(callback) {
+            Book.find({'author': req.body.id}).exec(callback);
+        }
+    }, (err, results) => {
+        if(err) return next(err);
+        if (results.author_books.length > 0) {
+            // Author has books. Render in same way as for GET route.
+            res.render('author_delete', { title: 'Delete Author',
+                author: results.author,
+                author_books: results.author_books
+            });
+            return
+        }
+        else {
+            // Author has no books. Delete object and redirect to the list of authors.
+            Author.findByIdAndRemove(req.body.authorid, (err) => {
+                console.log(req.body.authorid);
+                if (err) return next(err);
+                // Success - go to author list
+                res.redirect('/catalog/authors');
+            });
+        }
+    });
 };
 
 // Display Author update form on GET.
