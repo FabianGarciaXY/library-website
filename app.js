@@ -14,7 +14,13 @@ const db = require('./database/db')
 const app = express();
 
 // view engine setup
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', [ path.join(__dirname, 'views'),
+  path.join(__dirname, '/views/books'),
+  path.join(__dirname, 'views/authors'),
+  path.join(__dirname, '/views/bookInstances'),
+  path.join(__dirname, 'views/genres')]
+);
+
 app.set('view engine', 'pug');
 
 app.use(logger('dev'));
