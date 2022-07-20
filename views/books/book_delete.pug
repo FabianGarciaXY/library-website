@@ -1,0 +1,32 @@
+extends ../layout
+
+block content
+
+    h1 #{title}: #{book.title}
+    p #{book.title} by #{book.author.name}
+
+    if bookInstance.length
+
+        p #[strong Delete the following books instances before attempting to delete this book.]
+        div(style='margin-left:20px;margin-top:20px')
+
+            h4 Book copies:
+            dl
+            each bookInst in bookInstance
+                hr
+                dd: a(href=bookInst.url) #{book.title}
+                dd: a(href=bookInst.url) #{bookInst.book}
+                dd #{bookInst.imprint}
+                hr
+
+    else
+        p Do you really want to delete this Book Copy?
+        form(method='POST' action='')
+            div.form-group
+                input#authorid.form-control(
+                    type='hidden',
+                    name='bookInstaceId',
+                    required='true',
+                    value=book._id
+                )
+            button(class='btn btn-warning' type='submit') Delete
