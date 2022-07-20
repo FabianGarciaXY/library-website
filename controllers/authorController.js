@@ -126,7 +126,6 @@ exports.authorDeletePost = (req, res, next) => {
         else {
             // Author has no books. Delete object and redirect to the list of authors.
             Author.findByIdAndRemove(req.body.authorid, (err) => {
-                console.log(req.body.authorid);
                 if (err) return next(err);
                 // Success - go to author list
                 res.redirect('/catalog/authors');
