@@ -104,7 +104,7 @@ exports.authorDeleteGet = (req, res, next) => {
     });
 }
 
-// Display Author delete form on GET.
+// Delete the author on POST
 exports.authorDeletePost = (req, res, next) => {
     async.parallel({
         author(callback) {
