@@ -201,12 +201,11 @@ exports.book_delete_post = function(req, res, next) {
             res.render('book_delete', {
                 title: 'Delete Book',
                 book: results.book,
-                bookInstance: results.bookInstance
-            });
+                bookInstance: results.bookInstance });
             return
         }
         else {
-            Book.findByIdAndRemove(req.body.bookId, (err) => {
+            Book.findByIdAndRemove(req.body.genreId, (err) => {
                 if (err) return next(err);
                 res.redirect('/catalog/books');
             })
