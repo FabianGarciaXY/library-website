@@ -9,6 +9,10 @@ const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const catalogRouter = require('./routes/catalog')
 
+// Compression
+const compression = require('compression');
+app.use(compression()); // Compress all routes
+
 // Database Connection and App set up
 const db = require('./database/db')
 const app = express();
@@ -41,7 +45,7 @@ app.use(function(req, res, next) {
 
 // error handler
 app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
+  // set locals, only  providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
