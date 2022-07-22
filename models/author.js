@@ -50,7 +50,21 @@ AuthorSchema
     .virtual('date_of_dead_formatted')
     .get( function() {
         return this.date_of_death ? DateTime.fromJSDate(this.date_of_death).toLocaleString(DateTime.DATE_MED) : '';
-    })
+})
+
+// Virtual for date of birth in format yyyy-dd-mm to fill in form
+AuthorSchema
+    .virtual('date_of_birth_yyyy_dd_mm')
+    .get( function() {
+        return this.date_of_birth ? this.date_of_birth.toISOString().substring(0, 10) : '';
+});
+
+// Virtual for date of death in format yyyy-dd-mm to fill in form
+AuthorSchema
+    .virtual('date_of_death_yyyy_dd_mm')
+    .get( function() {
+        return this.date_of_death ? this.date_of_death.toISOString().substring(0, 10) : '';
+});
 
 // Virtual for author's URL
 AuthorSchema
