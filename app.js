@@ -13,6 +13,10 @@ const catalogRouter = require('./routes/catalog')
 const compression = require('compression');
 app.use(compression()); // Compress all routes
 
+// helmet
+const helmet = require('helmet');
+app.use(helmet());
+
 // Database Connection and App set up
 const db = require('./database/db')
 const app = express();
