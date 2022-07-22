@@ -2,6 +2,8 @@ const Author = require('../models/author');
 const Book = require('../models/book')
 const async = require('async');
 const { body, validationResult } = require('express-validator');
+const { DateTime } = require('luxon');
+
 
 
 // Render All list of authors
@@ -13,6 +15,7 @@ exports.authorList = (req, res, next) => {
             res.render('author_list', {title: 'Author List', list_authors: list_authors});
         });
 };
+
 
 // Render Information from a specific author
 exports.authorDetail = (req, res, next) => {
@@ -40,10 +43,12 @@ exports.authorDetail = (req, res, next) => {
     });
 };
 
+
 // Display Author create on GET
 exports.authorCreateGet = (req, res) => {
     res.render('author_form', {title: 'Create Author'});
 };
+
 
 // Handle author create on POST
 exports.authorCreatePost = [
@@ -104,6 +109,7 @@ exports.authorDeleteGet = (req, res, next) => {
     });
 }
 
+
 // Delete the author on POST
 exports.authorDeletePost = (req, res, next) => {
     async.parallel({
@@ -134,12 +140,38 @@ exports.authorDeletePost = (req, res, next) => {
     });
 };
 
+
 // Display Author update form on GET.
-exports.authorUpdateGet = (req, res) => {
-    res.send('NOT IMPLEMENTED: Author update GET');
+exports.authorUpdateGet = (req, res, next) => {
+    // Get info about the author, its books
+    async.parallel({
+        author(callback) {
+            Author.findById(req.params.id).exec(callback);
+        },
+        books(callback) {
+            Book.find({'author': req.params.id}).exec(callback);
+        }
+    }, (err, results) => {
+        if (err) return next(err);
+        if (results.author == null) {
+            let err = new Error('Not found');
+            err.status = 404;
+            return next(err);
+        }
+        // On success mark genres as checked
+        res.render('author_form', {
+            title: 'Update Author',
+            author: results.author,
+            books: results.books
+        });
+    }
+    
+    );
 }
 
+
 // Handle Author update on POST.
-exports.authorUpdatePost = (req, res) => {
-    res.send('NOT IMPLEMENTED: Author update POST');
+exports.authorUpdatePost = (req, res, next) => {
+    console.log(req.body);
+    next();
 };
