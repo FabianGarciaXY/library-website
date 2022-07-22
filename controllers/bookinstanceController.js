@@ -117,11 +117,83 @@ exports.bookInstanceDeletePost = (req, res, next) => {
 };
 
 // Display BookInstance update form on GET.
-exports.bookInstanceUpdateGet = (req, res) => {
-    res.send('NOT IMPLEMENTED: BookInstance update GET');
+exports.bookInstanceUpdateGet = (req, res, next) => {
+    // Get data about book instance
+    async.parallel({
+        bookInstance(callback) {
+            BookInstance.findById(req.params.id).populate('book').exec(callback);
+        },
+        book_list(callback) {
+            Book.find({'book': req.params.id}).exec(callback);
+        }
+    }, 
+    // If there are errors throw error 
+    (err, results) => {
+        if (err) return next(err);
+        if (results.bookInstance == null) {
+            let err = new Error('Book instance not found');
+            err.status = 404;
+            return next(err);
+        };
+        // On success, render the book instance update form.
+        res.render('book_instance_form', {
+            title: 'Update Book Instance',
+            bookInstance: results.bookInstance,
+            book_list: results.book_list
+        });
+    });
 };
 
 // Handle bookInstance update on POST.
-exports.bookInstanceUpdatePost = (req, res) => {
-    res.send('NOT IMPLEMENTED: BookInstance update POST');
-};
+exports.bookInstanceUpdatePost = [
+    // Validate and sanitize data
+    body('book', 'Book must be specified').trim().isLength({min: 1}).escape(),
+    body('imprint', 'Imprint must be specified').trim().isLength({min: 1}).escape(),
+    body('status').escape(),
+    body('due_back', 'Invalid date').optional({checkFalsy: true}).isISO8601().toDate(),
+    // Process request after validation and sanitization.
+    (req, res, next) => {
+
+        const errors = validationResult(req);
+        const bookInstance = new BookInstance({
+            _id: req.params.id,
+            book: req.body.book,
+            imprint: req.body.imprint,
+            status: req.body.status,
+            due_back: req.body.due_back
+        });
+
+        if (!errors.isEmpty()) {
+            // If there are errors get data from the database again.
+            // and send them to the form again with the errors.
+            async.parallel({
+                bookInstance(callback) {
+                    BookInstance.findById(req.params.id).populate('book').exec(callback);
+                },
+                book_list(callback) {
+                    Book.find({'book': req.params.id}).exec(callback);
+                }
+            },  (err, result) => {
+                if (err) return next(err);
+                if (results.bookInstance == null) {
+                    let err = new Error('Book instance not found');
+                    err.status = 404;
+                    return next(err);
+                }
+                res.render('book_instance_form', {
+                    title: 'Update Book Instance',
+                    bookInstance: result.bookInstance,
+                    book_list: result.book_list,
+                    errors: errors.array()
+                });
+            });
+            return
+        }
+        else {
+            BookInstance.findByIdAndUpdate(req.params.id, bookInstance, {}, (err, theBookInstance) => {
+                if (err) return next(err);
+                res.redirect(theBookInstance.url);
+            } )
+        }
+    }
+];
