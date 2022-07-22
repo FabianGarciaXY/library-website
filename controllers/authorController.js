@@ -2,8 +2,6 @@ const Author = require('../models/author');
 const Book = require('../models/book')
 const async = require('async');
 const { body, validationResult } = require('express-validator');
-const { DateTime } = require('luxon');
-
 
 
 // Render All list of authors
@@ -164,14 +162,55 @@ exports.authorUpdateGet = (req, res, next) => {
             author: results.author,
             books: results.books
         });
-    }
-    
-    );
+    });
 }
 
 
 // Handle Author update on POST.
-exports.authorUpdatePost = (req, res, next) => {
-    console.log(req.body);
-    next();
-};
+exports.authorUpdatePost = [
+    // Validate and sanitize fields.
+    body('first_name', 'first name must be specified').trim().isLength({ min: 1 }).escape(),
+    body('family_name', 'family name must be specified').trim().isLength({ min: 1 }).escape(),
+    body('date_of_birth', 'Invalid date of birth').optional({checkFalsy: true}).isISO8601().toDate(),
+    body('date_of_death', 'Invalid date of death').optional({checkFalsy: true}).isISO8601().toDate(),
+    // Process request after validation and sanitization.
+    (req, res, next) => {
+        const errors = validationResult(req);
+        const author = new Author({
+            first_name: req.body.first_name,
+            family_name: req.body.family_name,
+            date_of_birth: req.body.date_of_birth,
+            date_of_death: req.body.date_of_death
+        });
+
+        if (!errors.isEmpty()) {
+            // If there are errors get data from the database again.
+            // and send them to the form again with the errors.
+            async.parallel({
+                author(callback) {
+                    Author.findById(req.params.id).exec(callback);
+                },
+                books(callback) {
+                    Book.find({'author': req.params.id}).exec(callback);
+                },
+            }, (err, results) => {
+                if (err) return next(err)
+                res.render('author_form', {
+                    title: 'Update Author',
+                    author: results.author,
+                    books: author.books,
+                    errors: errors.array()
+                });
+            })
+            return
+        }
+        else {
+            // There are no error, success: update the author.
+            Author.findByIdAndUpdate(req.params.id, author, {}, (err, theAuthor) => {
+                if (err) return next(err);
+                // Success - redirect to the author's detail page.
+                res.redirect(theAuthor.url);
+            });
+        }
+    }
+];
