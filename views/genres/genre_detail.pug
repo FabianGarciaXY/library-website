@@ -4,21 +4,24 @@ block content
 
     h1 Genre: #{genre.name}
 
-    div(style='margin-left:20px;margin-top:20px')
+    div(style='margin-left:20px;margin-top:20px', class="content-detail-genre")
 
         h4 Books
 
         dl
             each book in genreBooks
-                dt
-                    a(href=book.url) #{book.title}
-                dd #{book.summary}
+                div
+                    dt
+                        a(href=book.url) #{book.title}
+                    dd #{book.summary}
 
             else
                 p This genre has no books
 
+    br
     hr
-    p
-        a(href=genre.url + '/delete') Delete Book
-    p
-        a(href=genre.url + '/update') Update Book
+    div.bottom-buttons
+        p
+            a(href=genre.url + '/delete') Delete Book
+        p
+            a(href=genre.url + '/update') Update Book

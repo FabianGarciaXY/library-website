@@ -3,7 +3,7 @@ extends ../layout
 block content
     h1= title
 
-    ul
+    ul.content-ul-list
         each genre in list_genres
             li
                 a(href=genre.url) #{genre.name}

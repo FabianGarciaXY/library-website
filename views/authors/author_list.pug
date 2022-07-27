@@ -3,7 +3,7 @@ extends ../layout
 block content
     h1= title
 
-    ul
+    ul.content-ul-list
         each author in list_authors
             li
                 if author.date_of_birth_formatted

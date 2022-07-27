@@ -4,7 +4,7 @@ block content
 
     h1= title
 
-    ul
+    ul.content-ul-list
         each book in data
             li
                 a(href=book.url) #{book.book.title} : #{book.imprint} -
